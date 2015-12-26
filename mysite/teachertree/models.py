@@ -19,6 +19,8 @@ class Teacher(models.Model):
     tid = models.IntegerField()
     date0 = models.DateField()
     date1 = models.DateField()
+    def __unicode__(self):
+        return self.tid
  
         
 class Student(models.Model):
