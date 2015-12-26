@@ -1,0 +1,39 @@
+<div id="main" align="center">
+<h1><font color=blue>为您选择的校友如下：</font></h1>
+
+
+<center>
+{% if errors %}
+{% for error in errors %}
+<p color=red>{{error}}</p>
+{% endfor %}
+{% else %}
+{% if queryset %}
+{% for que in queryset %}
+<table border="1">
+<tr>
+<th>姓名</th><td><a href='/queryothers/p1{{que.id}}/'>{{ que.name }}</a></td>
+</tr>
+</table>
+{% endfor %}
+
+
+
+{% else %}
+
+<a href='/ssf/'>换一组：</a>
+{% for que in queryset2 %}
+<table border="1">
+<tr>
+<th>姓名</th><td><a href='/queryothers/p1{{que.id}}/'>{{ que.name }}</a></td>
+</tr>
+</table>
+{% endfor %}
+
+{% endif %}
+{% endif %}
+</center>
+
+<div>
+ <a href="/index/">返回主页</a>
+</div>

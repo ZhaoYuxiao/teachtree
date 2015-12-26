@@ -3,22 +3,24 @@ from django.shortcuts import render,render_to_response
 from django.http import HttpResponse,HttpResponseRedirect
 from django.template import RequestContext
 from django import forms
-from django.contrib.auth.decorators import login_required
-import os 
 from teachertree.models import Person,Teacher,Student
-from django.template import Context
+
 from django.contrib.auth.models import User
 from django.contrib import auth
+import json
+import random
+from datetime import *
 
 class PersonForm(forms.Form):
     name = forms.CharField(label='姓名:',max_length=100)
     age = forms.IntegerField(label='年龄:')
-    sex = forms.CharField(label='性别:',max_length=100)
-    country = forms.CharField(label='国籍:',max_length=100,required=False)
-    school = forms.CharField(label='毕业院校:',max_length=100,required=False)
+    sex = forms.ChoiceField(label = '性别:',widget=forms.Select(),choices=([('男','男'),('女','女'),]),initial=2,)
+    
+class PersForm(forms.Form):
+
     email = forms.EmailField(label='电子邮件:')
     identity_card = forms.CharField(label='身份证号:',max_length=18)
-    province = forms.CharField(label='省份:',max_length=100,required=False)
+
     password = forms.CharField(label='密码:',widget=forms.PasswordInput())
     password2 = forms.CharField(label='再次输入密码:',widget=forms.PasswordInput())
 
@@ -44,14 +46,14 @@ class PersonForm(forms.Form):
     def clean_email(self):
         email = self.cleaned_data['email']
         try:
-            person = Person.objects.get(email=email)
+            Person.objects.get(email=email)
         except Person.DoesNotExist:
             return email
         else:
             raise forms.ValidationError("email already existed")
        
     def clean(self):
-        cleaned_data = super(PersonForm, self).clean()
+        cleaned_data = super(PersForm, self).clean()
         password = cleaned_data.get('password', '')
         password2 = cleaned_data.get('password2', '')
 
@@ -67,34 +69,31 @@ class UserForm(forms.Form):
 
 def CreUser(request):
     if request.method =='POST':
+        Se = PersForm(request.POST)
         Pe = PersonForm(request.POST)
-        if Pe.is_valid():
-            pe = Pe.cleaned_data
-            Name = pe['name']
-            identity_card = pe['identity_card']
+        if Se.is_valid():
             P0 = Person(
-                name = Name,
-                age = pe['age'],
-                sex = pe['sex'],
-                country = pe['country'],
-                school = pe['school'],
-                province = pe['province'],
-                email = pe['email'],
-                identity_card = identity_card
+                name = request.POST['name'],
+                age = request.POST['age'],
+                sex = request.POST['sex'],
+                school = request.POST['school'],
+                email = request.POST['email'],
+                identity_card = request.POST['identity_card'],
+                province = request.POST['province']
             )
             P0.save()
             user = User.objects.create_user(
-                username = pe['email'],
-                password = pe['password'])
+                username = request.POST['email'],
+                password = request.POST['password'])
             user.save()
             return render_to_response('registersuc.html')
-
         else:
-            return render_to_response('register.html',{'Pe':Pe},
+            return render_to_response('register.html',{'Pe':Pe,'Se':Se},
                                       context_instance=RequestContext(request))
     else:
         Pe = PersonForm()
-        return render_to_response('register.html',{'Pe':Pe},
+        Se = PersForm()
+        return render_to_response('register.html',{'Pe':Pe,'Se':Se},
                                   context_instance=RequestContext(request))
             
 
@@ -102,11 +101,10 @@ def CreUser(request):
 def login(req):
     errors = []
     if req.method == 'POST':
-        uf = UserForm(req.POST)
-        if uf.is_valid():
+        if True:
             #获取表单用户密码
-            username = uf.cleaned_data['username']
-            password = uf.cleaned_data['password']
+            username = req.POST['username']
+            password = req.POST['password']
             #获取的表单数据与数据库进行比较
             user = auth.authenticate(username=username, password=password)
             if user is not None:
@@ -119,11 +117,9 @@ def login(req):
                 #比较失败，还在login
                 errors.append('用户名密码匹配错误，请重新输入')
 #                return HttpResponseRedirect('/login/')
-                return render_to_response('login.html',{'uf':uf,'errors':errors},
+                return render_to_response('login1.html',{'errors':errors},
                                           context_instance=RequestContext(req))
-    else:
-        uf = UserForm()
-    return render_to_response('login.html',{'uf':uf},context_instance=RequestContext(req))
+    return render_to_response('login1.html',context_instance=RequestContext(req))
 
 #登陆成功
 def index(req):
@@ -145,17 +141,105 @@ def logout(req):
 def query(request):
     pid = request.session['member_id']
     person = Person.objects.get(id= pid)
+    personname = []
+    personname.append(person.name)
+    personname.append(person.id)
     teachers = Teacher.objects.filter(pid = person.id)
     students = Student.objects.filter(pid = person.id)
-    return render_to_response('.html',{'teachers':teachers,'students':students})
+    teacherlist=[]
+    studentlist=[]
+    if list(teachers) != []:
+        for teacher in teachers:
+            dicttmp={}
+            name=Person.objects.get(id=teacher.tid).name
+            dicttmp['pid']=teacher.pid.id
+            dicttmp['tid']=teacher.tid
+            dicttmp['name']=name
+            dicttmp['date0']=str(teacher.date0)
+            dicttmp['date1']=str(teacher.date1)
+            teacherlist.append(dicttmp)
+    if list(students) != []:
+        for student in students:
+            dicttmp1={}
+            name=Person.objects.get(id=student.sid).name
+            dicttmp1['pid']=student.pid.id
+            dicttmp1['sid']=student.sid
+            dicttmp1['name']=name
+            dicttmp1['date0']=str(student.date0)
+            dicttmp1['date1']=str(student.date1)
+            studentlist.append(dicttmp1)
+    if teacherlist == [] and studentlist == []:
+        return render_to_response("searchresult.html")
+    else:
+        return render(request,'searchresult.html',{'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
+    
     
 def query2(request):
-    pid = request.GET['id']
+    pid = request.GET['idtemp']
+    pid = int(pid)
     person = Person.objects.get(id= pid)
     teachers = Teacher.objects.filter(pid = person.id)
     students = Student.objects.filter(pid = person.id)
-    return render_to_response('.html',{'teachers':teachers,'students':students})
-   
+    ret=[[],[]]
+    teacherlist=[]
+    for teacher in teachers:
+        dicttmp={}
+        name=Person.objects.get(id=teacher.tid).name
+        dicttmp['pid']=teacher.pid.id
+        dicttmp['tid']=teacher.tid
+        dicttmp['name']=name
+        dicttmp['date0']=str(teacher.date0)
+        dicttmp['date1']=str(teacher.date1)
+        teacherlist.append(dicttmp)
+    ret[0]=teacherlist
+    studentlist=[]
+    for student in students:
+        dicttmp1={}
+        name=Person.objects.get(id=student.sid).name
+        dicttmp1['pid']=student.pid.id
+        dicttmp1['sid']=student.sid
+        dicttmp1['name']=name
+        dicttmp1['date0']=str(student.date0)
+        dicttmp1['date1']=str(student.date1)
+        studentlist.append(dicttmp1)
+    ret[1]=studentlist
+    return HttpResponse(json.dumps(ret),content_type='application/json')
+    
+def queryothers(request,idtmp):
+    person = Person.objects.get(id=idtmp)
+    personname = []
+    personname.append(person.name)
+    personname.append(person.id)
+    teachers = Teacher.objects.filter(pid = person.id)
+    students = Student.objects.filter(pid = person.id)
+    teacherlist=[]
+    studentlist=[]
+    if list(teachers) != []:
+        for teacher in teachers:
+            dicttmp={}
+            name=Person.objects.get(id=teacher.tid).name
+            dicttmp['pid']=teacher.pid.id
+            dicttmp['tid']=teacher.tid
+            dicttmp['name']=name
+            dicttmp['date0']=str(teacher.date0)
+            dicttmp['date1']=str(teacher.date1)
+            teacherlist.append(dicttmp)
+    if list(students) != []:
+        for student in students:
+            dicttmp1={}
+            name=Person.objects.get(id=student.sid).name
+            dicttmp1['pid']=student.pid.id
+            dicttmp1['sid']=student.sid
+            dicttmp1['name']=name
+            dicttmp1['date0']=str(student.date0)
+            dicttmp1['date1']=str(student.date1)
+            studentlist.append(dicttmp1)
+    if teacherlist == [] and studentlist == []:
+        return render_to_response("others.html")
+    else:
+        return render(request,'others.html',{'name':person,'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
+    
+  
 def searchteacher(request):
     search = False
     if 'name' in request.POST:
@@ -212,6 +296,19 @@ def buildstudent(request,sid):
         T0.save()
         return render_to_response('addstsuccess.html')
     return render_to_response('buildstudent.html',{'student':student},
+                              context_instance=RequestContext(request))
+
+def searchperson(request):
+    search = False
+    if 'name' in request.POST:
+        pid = request.session['member_id']
+        name = request.POST['name']
+        person = Person.objects.filter(name = name)
+        people = person.exclude(id=pid)
+        search = True
+        return render_to_response('searchperson.html',{'search':search,'people':people},
+                                  context_instance=RequestContext(request))
+    return render_to_response('searchperson.html',{'search':search},
                               context_instance=RequestContext(request))
 
 #id2是id1的老师
@@ -289,6 +386,7 @@ def iterate_search_student(id1,id2,count,index,prt,flag,a):
                 iterate_search_student(students[a[count]].sid,id2,count+1,index,prt,flag,a)
             a[count] += 1
 
+                
 def update(request):
     errors = []
     pid = request.session['member_id']
@@ -435,11 +533,74 @@ def search_relation(request,id2):
         else:
             flag2 = 1
         if flag1 == 1 and flag2 == 1:
-            relation.append('你们之间没有关系')
-            
+            if is_schoolfellow(id2,pid):
+                relation.append('你们是校友关系')
+            else:
+                relation.append('你们之间没有关系')     
     return render_to_response('searchre.html',{'sear':sear,'relation':relation,'tea':tea,'stu':stu},
                               context_instance=RequestContext(request))
         
-            
+def is_schoolfellow(id1,id2):
+    person1 = Person.objects.get(id = id1)
+    person2 = Person.objects.get(id = id2)
+    if person1.school == person2.school:
+        return True
+    return False          
 
+def search_schoolfellow(request):
+    errors=[]
+    pid = request.session['member_id']
+    person = Person.objects.get(id = pid)
+    school = person.school
+    queryset = Person.objects.filter(school = school).exclude(id=pid)
+    queryset2 = []
+    if len(queryset) == 0:
+        errors.append('本系统中暂时没有您的校友')
+        return render_to_response('search_schoolfellow.html',{'errors':errors,'queryset':queryset,'queryset2':queryset2},
+                              context_instance=RequestContext(request))
+    elif len(queryset) <= 5:
+        return render_to_response('search_schoolfellow.html',{'queryset':queryset,'queryset2':queryset2},
+                              context_instance=RequestContext(request))
+    else:
+        index=[]
+        count =0
+        while (count <5):
+            ind = random.randint(0,len(queryset)-1)
+            if ind not in index:
+                index.append(ind)
+                count +=1
+        for i in range(5):
+            queryset2.append(queryset[index[i]])
+        return render_to_response('search_schoolfellow.html',{'queryset2':queryset2},
+                              context_instance=RequestContext(request))
+
+
+def search_date(request):
+    search = False
+    if 'date0' in request.POST:
+        dt0 = request.POST['date0']
+        dt1 = request.POST['date1']
+        pid = request.session['member_id']
+        person = Person.objects.get(id = pid)
+        tea_queryset=[]
+        stu_queryset=[]
+        teacher = Teacher.objects.filter(pid=person)
+        student = Student.objects.filter(pid=person)
+        dt00 = dt0.split('-')
+        dt11 = dt1.split('-')
+        dat0 = date(int(dt00[0]),int(dt00[1]),int(dt00[2]))
+        dat1 = date(int(dt11[0]),int(dt11[1]),int(dt11[2]))
+        for tea in teacher:
+            if tea.date0<=dat0 and tea.date1>=dat1:
+                Tea = Person.objects.get(id = tea.tid)
+                tea_queryset.append(Tea)
+        for stu in student:
+            if stu.date0<=dat0 and stu.date1>=dat1:
+                Stu = Person.objects.get(id = stu.sid)
+                stu_queryset.append(Stu)
+        search = True
+        return render_to_response('search_date.html',{'search':search,'tea_queryset':tea_queryset,
+                                'stu_queryset':stu_queryset},context_instance=RequestContext(request))
+    return render_to_response('search_date.html',{'search':search},
+                                  context_instance=RequestContext(request))
 #@login_required  

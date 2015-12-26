@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{name.name}}的个人关系图</title>
+<script src="/static/js/jquery.js"></script>
+<script type="text/javascript" src="/static/js/jtopo-min.js"></script>
+<link href="/static/css/style.css" rel="stylesheet" type="text/css" />
+<script language="JavaScript" src="/static/js/jquery.js"></script>
+<script src="/static/js/cloud.js" type="text/javascript"></script>
+<script id='code'>
+        var dicnode = new Array();
+        $(document).ready(function(){  
+            var canvas = document.getElementById('canvas'); 
+            var stage = new JTopo.Stage(canvas); 
+            var scene = new JTopo.Scene(stage); 
+            scene.setBackground('/static/img/bg1.jpg'); 
+			
+			function addNode(vmNode,idtmp){
+			    var idtemp = idtmp;
+			    $.getJSON("/query2/",{'idtemp':idtemp}, function(ret){
+				    var teach = ret[0];
+					var study = ret[1];
+					var flag1 = 0;
+					var flag2 = 0;
+					for(var t=0; t<teach.length; t++){
+						for(var n=0; n<dicnode.length; n++){
+							if (dicnode[n].idPosition == teach[t].tid){
+								if (isin(dicnode[n].idPosition , vmNode.idFather)){
+								    vmNode.removeEventListener('dbclick');
+									break;
+								}
+								else{
+									dicnode[n].idFather.push(vmNode.idPosition);
+									vmNode.idFather.push(dicnode[n].idFather.idPosition);
+									var datet = dicnode[n].text+"的学生: "+teach[t].date0+'~'+teach[t].date1;
+									var link = newLink(dicnode[n],vmNode,datet);
+									vmNode.removeEventListener('dbclick');
+									break;
+								}
+							}
+							else{
+								flag1 = 1;
+							}
+							if(n<dicnode.length-1){
+								flag1 = 0;
+							}
+						}
+						if (flag1 == 1){
+							var tNode = new JTopo.CircleNode(teach[t].name);
+							tNode.radius = 20;
+							tNode.fillStyle = '255,255,0';
+							tNode.layout = {type: 'circle', radius: 50};
+							tNode.idPosition = teach[t].tid;
+							tNode.idFather = new Array();
+							tNode.idFather.push(vmNode.idPosition);
+							tNode.textPosition='Middle_Center';
+							tNode.setLocation(scene.width * Math.random(), scene.height * Math.random());
+							scene.add(tNode); 
+							dicnode.push(tNode);
+							var datet = vmNode.text+"的老师: "+teach[t].date0+'~'+teach[t].date1;
+							var link = newLink(vmNode,tNode,datet);
+							tNode.addEventListener('dbclick',function(e){
+								if (e.target){
+									addNode(e.target,e.target.idPosition);
+									tNode.removeEventListener('dbclick');
+							}
+						});
+						}
+						JTopo.layout.layoutNode(scene, vmNode, true);
+						flag1 = 0;
+				    }
+					for(var s=0; s<study.length; s++){	
+						for(var m=0; m< dicnode.length; m++){
+							if (dicnode[m].idPosition == study[s].sid){
+							    if (isin(dicnode[m].idPosition , vmNode.idFather)){
+								    vmNode.removeEventListener('dbclick');
+									break;
+								}
+								else{
+									dicnode[m].idFather.push(vmNode.idPosition);
+									vmNode.idFather.push(dicnode[m].idFather.idPosition);
+									var dates = dicnode[m].text+ "的老师: "+study[s].date0+'~'+study[s].date1;
+									var link = newLink(dicnode[m],vmNode,dates);
+									vmNode.removeEventListener('dbclick');
+									break;
+								}
+							}
+							else{
+								flag2 = 1;
+							}
+							if(m<dicnode.length-1){
+								flag2 = 0;
+							}
+						}
+						if (flag2 == 1){
+							var sNode = new JTopo.CircleNode(study[s].name);
+							sNode.radius = 20;
+							sNode.fillStyle = '255,255,0';
+							sNode.layout = {type: 'circle', radius: 50};
+							sNode.idPosition = study[s].sid;
+							sNode.idFather = new Array();
+							sNode.idFather.push(vmNode.idPosition);
+							sNode.textPosition='Middle_Center';
+							sNode.setLocation(scene.width * Math.random()*t, scene.height * Math.random()*t);
+							scene.add(sNode); 
+							dicnode.push(sNode);
+							var dates = vmNode.text+ "的学生: "+study[s].date0+'~'+study[s].date1;
+							var link = newLink(vmNode,sNode,dates);
+							JTopo.layout.layoutNode(scene, vmNode, true);
+							sNode.addEventListener('dbclick',function(e){
+								if (e.target){
+									addNode(e.target,e.target.idPosition);
+									sNode.removeEventListener('dbclick');
+							}
+						});	
+						}
+						JTopo.layout.layoutNode(scene, vmNode, true);
+						flag2 = 0;
+				    }
+				});
+            };  
+			
+			function isin(item,array){
+				for(var l=0; l < array.length ;l++){
+					if (item == array[l]){
+						return true;
+					}
+				}
+				return false;
+			}
+			
+            function newLink(nodeA, nodeZ, text, dashedPattern){
+                var link = new JTopo.Link(nodeA, nodeZ, text); 
+                link.lineWidth = 3; // 线宽
+                link.dashedPattern = dashedPattern; // 虚线
+                link.bundleOffset = 60; // 折线拐角处的长度
+                link.bundleGap = 20; // 线条之间的间隔
+                link.textOffsetY = 5; // 文本偏移量（向下5个像素）
+				link.arrowsRadius = 10;
+                link.strokeColor = '0,200,255';
+				link.fontColor = '0,0,0';
+				link.text = null;
+				link.alpha = 1;
+				link.mouseover(function(){
+                    this.text = text;
+                });
+                link.mouseout(function(){
+                    this.text = null;
+                });
+				scene.add(link);
+                return link;
+            };
+			
+			var person={{person|safe}};
+            var cloudNode = new JTopo.Node(person[0]);
+            cloudNode.setSize(40, 30);
+            cloudNode.setLocation(500,225); 
+			cloudNode.idPosition = person[1];
+			cloudNode.idFather = new Array();
+			cloudNode.idFather.push(-1);
+			cloudNode.textPosition='Middle_Center';
+            cloudNode.layout = {type: 'circle', radius : 150};
+            scene.add(cloudNode);
+			dicnode.push(cloudNode);
+            
+			var teachers = {{teachers|safe}};
+			var students = {{students|safe}};
+			
+            for(var i=0; i<teachers.length; i++){
+                var node = new JTopo.CircleNode(teachers[i].name);
+                node.fillStyle = '200,255,0';
+                node.radius = 20;
+				node.textPosition='Middle_Center';
+				node.idPosition = teachers[i].tid;
+				node.idFather = new Array();
+				node.idFather.push(cloudNode.idPosition);
+                node.setLocation(scene.width * Math.random(), scene.height * Math.random());
+                node.layout = {type: 'circle', radius: 80};
+                scene.add(node);  
+				dicnode.push(node);				
+                var date = cloudNode.text+"的老师: "+teachers[i].date0+'~'+teachers[i].date1;		
+                var link = newLink(cloudNode, node, date);
+                node.addEventListener('dbclick',function(e){
+						if (e.target){
+						addNode(e.target,e.target.idPosition);
+						node.removeEventListener('dbclick');
+						}
+					});
+                }
+			for(var j=0; j<students.length; j++){
+                var node1 = new JTopo.CircleNode(students[j].name);
+                node1.fillStyle = '200,255,0';
+                node1.radius = 20;
+				node1.textPosition='Middle_Center';
+				node1.idPosition = students[j].sid;
+				node1.idFather = new Array();
+				node1.idFather.push(cloudNode.idPosition);
+                node1.setLocation(scene.width * Math.random(), scene.height * Math.random());
+                node1.layout = {type: 'circle', radius: 80};
+                scene.add(node1);
+				dicnode.push(node1);
+                var date1 = cloudNode.text+"的学生: "+students[j].date0+'~'+students[j].date1;		
+                var link1 = newLink(cloudNode, node1, date1);
+                node1.addEventListener('dbclick',function(e){
+						if (e.target){
+						addNode(e.target,e.target.idPosition);
+						node1.removeEventListener('dbclick');
+						}
+					});
+                }
+            JTopo.layout.layoutNode(scene, cloudNode, true);
+            
+            scene.addEventListener('mouseup', function(e){
+                if(e.target && e.target.layout){
+                    JTopo.layout.layoutNode(scene, e.target, true);
+                }                
+            });
+			
+
+  
+          
+        });  
+</script>  
+</head>  
+<body style="background-color:#1c77ac; background-image:url(/static/images/light.png); background-repeat:no-repeat; background-position:center top; overflow:hidden;">
+    <div id="mainBody">
+      <div id="cloud1" class="cloud"></div>
+      <div id="cloud2" class="cloud"></div>
+    </div> 
+    <center>  
+	    <h1>{{name.name}}的个人关系图</h1>
+        <canvas width="1000" height="450" id="canvas" style=" background-color:#EEEEEE; border:1px solid #444;"></canvas>  
+		<br><input type="button" class="loginbtn" value="返回主页" onclick="location.href='/index/'" /></br>
+    </center>  
+ </body>  
+</html>

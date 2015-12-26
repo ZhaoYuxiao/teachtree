@@ -1,15 +1,27 @@
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>添加学生</title>
+	<link href="/static/css/style.css" rel="stylesheet" type="text/css" />
+	<script language="JavaScript" src="/static/js/jquery.js"></script>
+    <script src="/static/js/cloud.js" type="text/javascript"></script>
+</head>
+<body style="background-color:#1c77ac; background-image:url(/static/images/light.png); background-repeat:no-repeat; background-position:center top; overflow:hidden;">
+	<div id="mainBody">
+      <div id="cloud1" class="cloud"></div>
+      <div id="cloud2" class="cloud"></div>
+    </div>
 <div id="main" align="center">
-<h1><font color=blue>请输入学生姓名！！！</font></h1>
-
+<h1>请输入学生姓名！！！</h1>
+<br></br>
 <form  method="POST">
 {% csrf_token %}
 <table border=1 align="center">
  <tr>
-  <th>老师姓名</th><th>操作按钮</th>
+  <th>学生姓名</th><th>操作按钮</th>
  </tr>
  <tr>
   <td><input name="name" type="text"></td>
-  <td><input type="submit" value="搜索" > <input type="reset" value="重填"></td>
+  <td><input type="submit" value="搜索" class="loginbtn"> <input type="reset" value="重填" class="loginbtn"></td>
  </tr>
 </table>
 </form>
@@ -18,18 +30,18 @@
 {% if search %}
 {% if students %}
 <p>请选择一个学生建立师生关系，如果没有你要找的学生，请重新搜索</p>
-<table border="1">
+<table width="800" border="1">
 <tr>
-<th>姓名</th><th>年龄</th><th>性别</th><th>毕业院校</th><th>邮箱</th><th>op</th> 
+<th>姓名</th><th>年龄</th><th>性别</th><th>毕业院校</th><th>邮箱</th><th>操作</th> 
 </tr>
 {% for student in students %}
-<tr>
+<tr style="text-align:center">
 <td>{{ student.name }}</td>
 <td>{{ student.age }}</td>
 <td>{{ student.sex }}</td>
 <td>{{ student.school }}</td>
 <td>{{ student.email }}</td>
-<td><a href="/buildstudent/p1{{student.id}}/">建立关系</a></td>
+<td><a href='/buildstudent/p1{{student.id}}/'>添加</a></td>
 
 </tr>
 {% endfor %}
@@ -40,7 +52,9 @@
 {% endif %}
 {% endif %}
 </center>
-
+<br></br></br></br></br></br>
 <div>
  <a href="/index/">返回主页</a>
 </div>
+</div>
+</body>
