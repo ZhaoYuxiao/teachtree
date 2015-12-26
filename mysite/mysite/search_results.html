@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>欢迎使用师承树</title>
+</head>
+<center>
+<body>
+
+<p><font size="6">你搜索的是：</font><font size="6"><strong style="color: red;">{{ query }}</strong></font></p>
+<HR width="100%" color=#987cb9 SIZE=5 />
+{% if errors %}
+<ul>
+{% for error in errors %}
+<li style="color: red;">{{ error }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if tdict %}
+<p style="color: red;"><font size="6"><strong>他的老师</strong></font></p>
+<table border="1">
+<tr>
+<th>姓名</th><th>关系维持时间</th> <th>op1</th>
+</tr>
+{%  for key, value in tdict.items  %}
+<tr>
+<td><a href="/search/?select=name&search={{ key }}">{{ key }}</a></td>
+<td style="text-align:center">{{ value }}</td>
+<td style="text-align:center"><a href="/deleteteacher/p1={{person.id}}p2={{key}}/">删除</a></td>
+{% endfor %}
+{% else %}
+<p style="color: red;"><font size="6"><strong>他没有老师</strong></font></p>
+{% endif %}
+<tr>
+<td  style="text-align:center" colspan="3"><a href="/addteacher/p1{{person.id}}/">添加老师</a></td>
+</tr>
+</table>
+
+{% if sdict %}
+<p style="color: red;"><font size="6"><strong>他的学生</strong></font></p>
+<table border="1">
+<tr>
+<th>姓名</th><th>关系维持时间</th> <th>op1</th>
+</tr>
+{%  for key, value in sdict.items  %}
+<tr>
+<td style="text-align:center"><a href="/search/?select=name&search={{ key }}">{{ key }}</a></td>
+<td style="text-align:center">{{ value }}</td>
+<td><a href="/deletestudent/p1={{person.id}}p2={{key}}/">删除</a></td>
+</tr>
+{% endfor %}
+{% else %}
+<p style="color: red;"><font size="6"><strong>他没有学生</strong></font></p>
+{% endif %}
+<tr>
+<td  style="text-align:center" colspan="3"><a href="/addstudent/p1{{person.id}}/">添加学生</a></td>
+</tr>
+</table>
+
+<table >
+<tr>
+<td><a href="/">返回主页</a></td>
+</tr>
+</table>
+
+
+
+</body>
+</center>
+
+</html>

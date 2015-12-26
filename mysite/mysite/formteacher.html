@@ -1,0 +1,32 @@
+<head>
+<title>添加老师</title>
+</head>
+<p style="color: red;text-align:center"><font size="6">欢迎使用师承关系管理系统</font> </p>
+<HR width="100%" color=#987cb9 SIZE=5 />
+<div id="main" align="center">
+<h1><font color=blue>请输入老师姓名！！！</font></h1>
+</div>
+<form  method="get">
+<center>
+{% if errors %}
+
+{% for error in errors %}
+<p style="color: red;"><font size="5">{{ error }}</font></p>
+{% endfor %}
+{% endif %}
+</center>
+<table border=1 align="center">
+
+ <tr>
+  <th>老师姓名</th><th>师生关系时间属性</th><th>操作按钮</th>
+ </tr>
+ <tr>
+  <td><input name="Name" type="text" required="required"></td>
+  <td><input name="Date" type="text" required="required"></td>
+  <td><input type="submit" value="保存" > <input type="reset" value="重填"></td>
+ </tr>
+</table>
+</form>
+<div>
+ <a href="/">返回主页</a>
+</div>

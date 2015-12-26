@@ -1,0 +1,46 @@
+<html>
+<head>
+<title>欢迎使用师承树</title>
+</head>
+
+<center>
+<body>
+<p style="color: red;"><font size="6">欢迎使用师承关系管理系统</font> </p>
+<HR width="100%" color=#987cb9 SIZE=5 />
+{% if errors %}
+
+{% for error in errors %}
+<p style="color: red;">{{ error }}</p>
+{% endfor %}
+{% endif %}
+
+<table border=1 align="center">
+<div align="center">
+  <form action="/search/" method="get">
+    <select name="select">
+      <option value="name">姓名</option>
+    </select>
+    <input type="text" name="search" required="required">
+    <input type="submit" value="搜索">
+  </form>
+</div>
+ <tr>
+  <th>Name</th><th>action</th>
+ </tr>
+{% for person in person_list %}
+<form  method="get">
+ <tr>
+  <td style="text-align:center">{{ person.Name }}</td>
+  <td><a href="/addteacher/p1{{person.id}}/"  method="get">增加老师</a>
+  <a href="/addstudent/p1{{person.id}}/"  method="get">增加学生</a><td>
+ </tr>
+</form>
+{% endfor %}
+</table>
+
+
+</form>
+</body>
+</center>
+
+</html>
