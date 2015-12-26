@@ -1,17 +1,5 @@
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>欢迎使用师承关系管理系统</title>
-	<link href="/static/css/style.css" rel="stylesheet" type="text/css" />
-	<script language="JavaScript" src="/static/js/jquery.js"></script>
-    <script src="/static/js/cloud.js" type="text/javascript"></script>
-</head>
-<body style="background-color:#1c77ac; background-image:url(/static/images/light.png); background-repeat:no-repeat; background-position:center top; overflow:hidden;">
-	<div id="mainBody">
-      <div id="cloud1" class="cloud"></div>
-      <div id="cloud2" class="cloud"></div>
-    </div>
 <div id="main" align="center">
-<h1>请输入姓名！！！</h1>
+<h1><font color=blue>请输入姓名！！！</font></h1>
 
 <form  method="POST" action="/searchre/">
 {% csrf_token %}
@@ -21,25 +9,21 @@
  </tr>
  <tr>
   <td><input name="name" type="text"></td>
-  <td><input type="submit" value="搜索"  class="loginbtn"> <input type="reset" value="重填" class="loginbtn"></td>
+  <td><input type="submit" value="搜索" > <input type="reset" value="重填"></td>
  </tr>
 </table>
 </form>
-
-<h1>点击此处可以查询你在某个时间段内与他人的关系</h1>
-
-<a href="/se_date/">查询关系</a>
 
 <center>
 {% if search %}
 {% if persons %}
 <p>请选择一个学生建立师生关系，如果没有你要找的学生，请重新搜索</p>
-<table width="800" border="1">
+<table border="1">
 <tr>
 <th>姓名</th><th>年龄</th><th>性别</th><th>毕业院校</th><th>邮箱</th><th>op</th> 
 </tr>
 {% for person in persons %}
-<tr style="text-align:center">
+<tr>
 <td>{{ person.name }}</td>
 <td>{{ person.age }}</td>
 <td>{{ person.sex }}</td>
@@ -84,8 +68,7 @@
 
 {% endif %}
 </center>
-<br><br><br><br><br><br></br>
+
 <div>
  <a href="/index/">返回主页</a>
 </div>
-</body>

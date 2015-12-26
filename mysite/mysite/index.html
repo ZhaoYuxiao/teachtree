@@ -3,30 +3,18 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>个人主页</title>
-	<link href="/static/css/style.css" rel="stylesheet" type="text/css" />
-	<script language="JavaScript" src="/static/js/jquery.js"></script>
-    <script src="/static/js/cloud.js" type="text/javascript"></script>
+    <title></title>
 </head>
 
-<body style="background-color:#1c77ac; background-image:url(/static/images/light.png); background-repeat:no-repeat; background-position:center top; overflow:hidden;">
-	<div id="mainBody">
-      <div id="cloud1" class="cloud"></div>
-      <div id="cloud2" class="cloud"></div>
-    </div>
-<center>
-<h1>欢迎您回来  {{username}} ！！！</h1>
-<br><a href="/searchteacher/">添加老师</a></br>
-<br><a href="/searchstudent/">添加学生</a></br>
-<br><a href="/delete/">删除老师或学生</a></br>
-<br><a href="/query/">查询自己的教师与学生</a></br>
-<br><a href="/searchre/">查询某人与您的关系</a></br>
-<br><a href="/update/">更改自己的个人信息</a></br>
-<br><a href="/searchperson/">查询某人的信息</a></br>
-<br><a href="/ssf/">查询你的校友</a></br>
+<body>
+<h1>欢迎您回来， {{username}} !</h1>
+<a href="/searchteacher/">添加老师</a>
+<a href="/searchstudent/">添加学生</a>
+<a href="/query/">查询自己的教师与学生</a>
+<a href="/searchre/">查询某人与您的关系</a>
+<a href="/update/">更改自己的个人信息</a>
+<a href="/logout/">查询某人的信息</a>
 <br>
 <a href="/logout/">退出</a>
-</br>
-</center>
 </body>
 </html>

@@ -22,12 +22,6 @@ urlpatterns = patterns('',
     url(r'^regist/$',views.CreUser),
     url(r'^index/$',views.index),
     url(r'^logout/$',views.logout),
-    url(r'^query/$',views.query),
-    url(r'^query2/$',views.query2),
-    url(r'^searchperson/$',views.searchperson),
-    url(r'^queryothers/p1(\d+)/$',views.queryothers),
-    (r'^ssf/$', views.search_schoolfellow),
-    (r'^se_date/$', views.search_date),
     # Examples:
     # url(r'^$', 'mysite.views.home', name='home'),
     # url(r'^mysite/', include('mysite.foo.urls')),
@@ -38,5 +32,3 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     (r'^admin/', include(admin.site.urls)),
 )
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-urlpatterns += staticfiles_urlpatterns()
