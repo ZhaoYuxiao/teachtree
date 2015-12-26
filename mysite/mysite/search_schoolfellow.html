@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>个人主页</title>
+    <title>查询校友</title>
 	<link href="/static/css/style.css" rel="stylesheet" type="text/css" />
 	<script language="JavaScript" src="/static/js/jquery.js"></script>
     <script src="/static/js/cloud.js" type="text/javascript"></script>
@@ -14,7 +14,7 @@
       <div id="cloud2" class="cloud"></div>
     </div>
 <div id="main" align="center">
-<h1>为您选择的校友如下：</font></h1>
+<h1>为您选择的校友如下:</h1>
 
 
 <center>
@@ -24,34 +24,61 @@
 {% endfor %}
 {% else %}
 {% if queryset %}
-{% for que in queryset %}
-<table border="1">
+<table width="800" border="1">
 <tr>
-<th>姓名</th><td><a href='/queryothers/p1{{que.id}}/'>{{ que.name }}</a></td>
+<th>姓名</th><th>年龄</th><th>性别</th><th>毕业院校</th><th>邮箱</th><th>操作</th> 
 </tr>
-</table>
+{% for person in queryset %}
+<tr style="text-align:center">
+<td>{{ person.name }}</td>
+<td>{{ person.age }}</td>
+<td>{{ person.sex }}</td>
+<td>{{ person.school }}</td>
+<td>{{ person.email }}</td>
+<td><a href='/queryothers/p1{{person.id}}p0/'>查询其师承关系</a>
+<a href='/buildteacher/p1{{person.id}}/'>添加为老师</a>
+<a href='/buildstudent/p1{{person.id}}/'>添加为学生</a></td>
+
+</tr>
 {% endfor %}
+</table>
+
 
 
 
 {% else %}
 
-{% for que in queryset2 %}
-<table border="1">
+<table width="800" border="1">
 <tr>
-<th>姓名</th><td><a href='/queryothers/p1{{que.id}}/'>{{ que.name }}</a></td>
+<th>姓名</th><th>年龄</th><th>性别</th><th>毕业院校</th><th>邮箱</th><th>操作</th> 
 </tr>
-</table>
+{% for person in queryset2 %}
+<tr style="text-align:center">
+<td>{{ person.name }}</td>
+<td>{{ person.age }}</td>
+<td>{{ person.sex }}</td>
+<td>{{ person.school }}</td>
+<td>{{ person.email }}</td>
+<td><a href='/queryothers/p1{{person.id}}p0/'>查询其师承关系</a>
+<a href='/buildteacher/p1{{person.id}}/'>添加为老师</a>
+<a href='/buildstudent/p1{{person.id}}/'>添加为学生</a></td>
+
+</tr>
 {% endfor %}
+</table>
 
 {% endif %}
 {% endif %}
 </center>
 </div>
+<br></br>
+{% if queryset2%}
 <div align ="center">
 	<a href='/ssf/'>换一组</a>
 </div>
-<div align ="center">
-	<a href="/index/">返回主页</a>
+{% endif %}
+<br></br>
+<div align="center">
+ <a href="/index/">返回主页</a>
 </div>
 </body>

@@ -4,12 +4,11 @@ from django.http import HttpResponse,HttpResponseRedirect
 from django.template import RequestContext
 from django import forms
 from teachertree.models import Person,Teacher,Student
-
 from django.contrib.auth.models import User
 from django.contrib import auth
 import json
 import random
-from datetime import *
+from datetime import date
 
 class PersonForm(forms.Form):
     name = forms.CharField(label='姓名:',max_length=100)
@@ -96,7 +95,6 @@ def CreUser(request):
         Se = PersForm()
         return render_to_response('register.html',{'Pe':Pe,'Se':Se},
                                   context_instance=RequestContext(request))
-            
 
 #登陆
 def login(req):
@@ -139,7 +137,7 @@ def logout(req):
     return HttpResponseRedirect('/login/')
 
 
-def query(request):
+def query(request,flag):
     pid = request.session['member_id']
     person = Person.objects.get(id= pid)
     personname = []
@@ -170,11 +168,60 @@ def query(request):
             dicttmp1['date1']=str(student.date1)
             studentlist.append(dicttmp1)
     if teacherlist == [] and studentlist == []:
-        return render_to_response("searchresult.html")
+        return render_to_response("searchrelationerr.html")
+    elif int(flag)==0:
+        return render(request,'swipover.html',{'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
+    elif int(flag)==1:
+        return render(request,'showteachers.html',{'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
     else:
-        return render(request,'searchresult.html',{'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
-    
-    
+        return render(request,'showstudents.html',{'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
+ 
+def query1(request,flag,torsid,sameteid):
+    if sameteid ==-1:
+        pid = request.session['member_id']
+    else:
+        pid = sameteid
+    person = Person.objects.get(id= pid)
+    personname = []
+    personname.append(person.name)
+    personname.append(person.id)
+    teachers = Teacher.objects.filter(pid = person.id)
+    students = Student.objects.filter(pid = person.id)
+    teacherlist=[]
+    studentlist=[]
+    if list(teachers) != []:
+        for teacher in teachers:
+            dicttmp={}
+            name=Person.objects.get(id=teacher.tid).name
+            dicttmp['pid']=teacher.pid.id
+            dicttmp['tid']=teacher.tid
+            dicttmp['name']=name
+            dicttmp['date0']=str(teacher.date0)
+            dicttmp['date1']=str(teacher.date1)
+            teacherlist.append(dicttmp)
+    if list(students) != []:
+        for student in students:
+            dicttmp1={}
+            name=Person.objects.get(id=student.sid).name
+            dicttmp1['pid']=student.pid.id
+            dicttmp1['sid']=student.sid
+            dicttmp1['name']=name
+            dicttmp1['date0']=str(student.date0)
+            dicttmp1['date1']=str(student.date1)
+            studentlist.append(dicttmp1)
+    if teacherlist == [] and studentlist == []:
+        return render_to_response("searchrelation1.html")
+    else:
+        if flag==0:
+            lstr=Person.objects.get(id=torsid).name+'是您的学生之一'.decode('utf-8')
+            return render(request,'searchrelation1.html',{'lstr':lstr,'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})   
+        elif flag ==1:
+            lstr=Person.objects.get(id=torsid).name+'是您的老师之一'.decode('utf-8')
+            return render(request,'searchrelation1.html',{'lstr':lstr,'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})   
+        else:
+            lstr=Person.objects.get(id=torsid).name+'与您是同学关系'.decode('utf-8')
+            return render(request,'searchrelation1.html',{'lstr':lstr,'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
+            
 def query2(request):
     pid = request.GET['idtemp']
     pid = int(pid)
@@ -206,7 +253,7 @@ def query2(request):
     ret[1]=studentlist
     return HttpResponse(json.dumps(ret),content_type='application/json')
     
-def queryothers(request,idtmp):
+def queryothers(request,idtmp,flag):
     person = Person.objects.get(id=idtmp)
     personname = []
     personname.append(person.name)
@@ -236,17 +283,22 @@ def queryothers(request,idtmp):
             dicttmp1['date1']=str(student.date1)
             studentlist.append(dicttmp1)
     if teacherlist == [] and studentlist == []:
-        return render_to_response("others.html")
-    else:
+        return render_to_response("otherserr.html")
+    elif int(flag)==0:
         return render(request,'others.html',{'name':person,'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
-    
-  
+    elif int(flag)==1:
+        return render(request,'othersteachers.html',{'name':person,'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
+    else:
+        return render(request,'othersstudents.html',{'name':person,'person':json.dumps(personname),'teachers':json.dumps(teacherlist),'students':json.dumps(studentlist)})
 def searchteacher(request):
     search = False
     if 'name' in request.POST:
         pid = request.session['member_id']
         name = request.POST['name']
         person = Person.objects.filter(name = name)
+        teachlist=Teacher.objects.filter(pid=Person.objects.get(id=pid))
+        for t in teachlist:
+            person = person.exclude(id=t.tid)
         teachers = person.exclude(id=pid)
         search = True
         return render_to_response('searchteacher.html',{'search':search,'teachers':teachers},
@@ -276,6 +328,9 @@ def searchstudent(request):
         pid = request.session['member_id']
         name = request.POST['name']
         person = Person.objects.filter(name = name)
+        studylist=Student.objects.filter(pid=Person.objects.get(id=pid))
+        for s in studylist:
+            person = person.exclude(id=s.sid)
         students = person.exclude(id=pid)
         search = True
         return render_to_response('searchstudent.html',{'search':search,'students':students},
@@ -339,7 +394,7 @@ def is_fellow_apprentice(id1,id2):
         students = Student.objects.filter(pid=tea)
         for student in students:
             if student.sid == id2:
-                return True
+                return student.pid.id
     return False 
 
 def iterate_search_teacher(id1,id2,count,index,prt,flag,a):
@@ -386,6 +441,7 @@ def iterate_search_student(id1,id2,count,index,prt,flag,a):
                 flag[(students[a[count]].sid-1)]=1
                 iterate_search_student(students[a[count]].sid,id2,count+1,index,prt,flag,a)
             a[count] += 1
+
 
                 
 def update(request):
@@ -463,84 +519,6 @@ def se_re(request):
     return render_to_response('searchre.html',{'search':search},
                               context_instance=RequestContext(request))
 
-                
-def search_relation(request,id2):
-    index=[0,0,0,0,0,0,0,0,0,0]
-    a = [0,0,0,0,0,0,0,0,0,0]
-    prt=[]
-    sear = False
-    pid = request.session['member_id']
-    relation = []
-    count = 0
-    tea=[]
-    stu=[]
-    if is_teacher(id2,pid):
-        sear = True
-        relation.append('他是您的学生之一')
-#        return render_to_response('searchre.html',{'sear':sear,'relation':relation},
-#                              context_instance=RequestContext(request))
-    if is_student(id2,pid):
-        sear = True
-        relation.append('他是您的老师之一')
-#        return render_to_response('searchre.html',{'sear':sear,'relation':relation},
-#                              context_instance=RequestContext(request))
-#        return render_to_response('searchre.html',{'sear':sear,'relation':relation},
-#                              context_instance=RequestContext(request))
-
-    if sear == False:
-        sear = True
-        if is_fellow_apprentice(id2,pid):
-            relation.append('你们拥有共同的老师')
-        persons = Person.objects.all()
-        lp= len(persons)
-        flag = [0]*lp
-        
-        flag1 = 0
-        flag2 = 0
-        iterate_search_student(id2,pid,count,index,prt,flag,a)
-        
-        if len(prt) != 0:
-            for prin in prt:
-                teacher=[]
-                per = Person.objects.get(id = id2)
-                teacher.append(per)
-                for i in range(len(prin)):
-                    person = Person.objects.get(id = prin[i])
-                    teacher.append(person)
-                rela = '他是你'+str(len(prin))+'代之前的老师'
-                teacher.append(rela)
-                teacher.reverse()
-                tea.append(teacher)
-#            return render_to_response('searchre.html',{'sear':sear,'relation':relation,'prt':prt},
-#                                      context_instance=RequestContext(request))
-        else:
-            flag1 = 1
-        prt =[]
-        index =[0,0,0,0,0,0,0,0,0,0]
-        flag = [0]*lp
-        iterate_search_teacher(id2,pid,count,index,prt,flag,a)
-        if len(prt) != 0:
-            for prin in prt:
-                student = []
-                per = Person.objects.get(id = id2)
-                student.append(per)
-                for i in range(len(prin)):
-                    person = Person.objects.get(id = prin[i])
-                    student.append(person)
-                rela = '他是你'+str(len(prin))+'代之后的学生'
-                student.append(rela)
-                student.reverse()
-                stu.append(student)
-        else:
-            flag2 = 1
-        if flag1 == 1 and flag2 == 1:
-            if is_schoolfellow(id2,pid):
-                relation.append('你们是校友关系')
-            else:
-                relation.append('你们之间没有关系')     
-    return render_to_response('searchre.html',{'sear':sear,'relation':relation,'tea':tea,'stu':stu},
-                              context_instance=RequestContext(request))
-        
 def is_schoolfellow(id1,id2):
     person1 = Person.objects.get(id = id1)
     person2 = Person.objects.get(id = id2)
@@ -604,4 +582,120 @@ def search_date(request):
                                 'stu_queryset':stu_queryset},context_instance=RequestContext(request))
     return render_to_response('search_date.html',{'search':search},
                                   context_instance=RequestContext(request))
-#@login_required  
+
+              
+def search_relation(request,id2):
+    index=[0,0,0,0,0,0,0,0,0,0]
+    a = [0,0,0,0,0,0,0,0,0,0]
+    prt=[]
+    sear = False
+    pid = request.session['member_id']
+    relation = []
+    count = 0
+    tea=[]
+    stu=[]
+    if is_teacher(id2,pid):
+        sear = True
+        return query1(request,0,id2,-1)
+    if is_student(id2,pid):
+        sear = True
+        return query1(request,1,id2,-1)
+
+    if sear == False:
+        sear = True
+        if is_fellow_apprentice(id2,pid):
+            return query1(request,2,id2,is_fellow_apprentice(id2,pid))
+        
+        persons = Person.objects.all()
+        lp= len(persons)
+        flag = [0]*lp
+        
+        flag1 = 0
+        flag2 = 0
+        
+        iterate_search_student(id2,pid,count,index,prt,flag,a)
+        
+        teacherlist=[]
+        studentlist=[]
+        teacherslist=[]
+        studentslist=[]
+        if len(prt) != 0:
+            person = Person.objects.get(id= pid)
+            personname = []
+            personname.append(person.name)
+            personname.append(person.id)
+            for prin in prt:
+                for i in range(len(prin)):
+                    if i==len(prin)-1:
+                        per = Person.objects.get(id = pid)
+                        teacher = Teacher.objects.get(tid=prin[i-1],pid=per)
+                    elif i==0:
+                        per = Person.objects.get(id = prin[0])
+                        teacher = Teacher.objects.get(tid=id2,pid=per)
+                    else:
+                        per = Person.objects.get(id = prin[i])
+                        teacher = Teacher.objects.get(tid=prin[i-1],pid=per)
+                    dicttmp={}
+                    name=Person.objects.get(id=teacher.tid).name
+                    dicttmp['pid']=teacher.pid.id
+                    dicttmp['tid']=teacher.tid
+                    dicttmp['name']=name
+                    dicttmp['date0']=str(teacher.date0)
+                    dicttmp['date1']=str(teacher.date1)
+                    teacherlist.append(dicttmp)
+                teacherslist.append(teacherlist)
+                teacherlist=[]
+            lstr=Person.objects.get(id=id2).name+'与您的关系如下'.decode('utf-8')
+            return render(request,'searchrelation2.html',{'lstr':lstr,'person':json.dumps(personname),'teachers':json.dumps(teacherslist),'students':json.dumps(studentslist)})
+            
+
+        else:
+            flag1 = 1
+            
+        prt =[]
+        index =[0,0,0,0,0,0,0,0,0,0]
+        flag = [0]*lp
+        
+        iterate_search_teacher(id2,pid,count,index,prt,flag,a)
+        
+        if len(prt) != 0:
+            person = Person.objects.get(id= pid)
+            personname = []
+            personname.append(person.name)
+            personname.append(person.id)
+            for prin in prt:
+                for i in range(len(prin)):
+                    if i==0:
+                        per = Person.objects.get(id = prin[0])
+                        student = Student.objects.get(sid=id2,pid=per)
+                    elif i==len(prin)-1:
+                        per = Person.objects.get(id = pid)
+                        student = Student.objects.get(sid=prin[i-1],pid=per)
+                    else:
+                        per = Person.objects.get(id = prin[i])
+                        student = Student.objects.get(sid=prin[i-1],pid=per)
+                    dicttmp={}
+                    name=Person.objects.get(id=student.sid).name
+                    dicttmp['pid']=student.pid.id
+                    dicttmp['sid']=student.sid
+                    dicttmp['name']=name
+                    dicttmp['date0']=str(student.date0)
+                    dicttmp['date1']=str(student.date1)
+                    studentlist.append(dicttmp)
+                studentslist.append(studentlist)
+                studentlist=[]
+            lstr=Person.objects.get(id=id2).name+'与您的关系如下'.decode('utf-8')
+            return render(request,'searchrelation2.html',{'lstr':lstr,'person':json.dumps(personname),'teachers':json.dumps(teacherslist),'students':json.dumps(studentslist)})
+        else:
+            flag2 = 1
+        if flag1 == 1 and flag2 == 1:
+            if is_schoolfellow(id2,pid):
+                relation.append('你们是校友关系')
+            else:
+                relation.append('你们之间没有关系')     
+            
+    return render_to_response('searchre.html',{'sear':sear,'relation':relation,'tea':tea,'stu':stu},
+                              context_instance=RequestContext(request))
+
+        
+            

@@ -31,9 +31,14 @@
 								}
 								else{
 									dicnode[n].idFather.push(vmNode.idPosition);
-									vmNode.idFather.push(dicnode[n].idFather.idPosition);
-									var datet = dicnode[n].text+"的学生: "+teach[t].date0+'~'+teach[t].date1;
-									var link = newLink(dicnode[n],vmNode,datet);
+									vmNode.idFather.push(dicnode[n].idPosition);
+									var datet = vmNode.text+"的老师: "+teach[t].date0+'~'+teach[t].date1;
+									if (isfront(dicnode[n],vmNode)){
+										var link = newLink(dicnode[n],vmNode,datet);
+									}
+									else{
+										var link = newLink(vmNode,dicnode[n],datet);
+									}
 									vmNode.removeEventListener('dbclick');
 									break;
 								}
@@ -62,7 +67,7 @@
 							tNode.addEventListener('dbclick',function(e){
 								if (e.target){
 									addNode(e.target,e.target.idPosition);
-									tNode.removeEventListener('dbclick');
+									this.removeEventListener('dbclick');
 							}
 						});
 						}
@@ -78,9 +83,14 @@
 								}
 								else{
 									dicnode[m].idFather.push(vmNode.idPosition);
-									vmNode.idFather.push(dicnode[m].idFather.idPosition);
-									var dates = dicnode[m].text+ "的老师: "+study[s].date0+'~'+study[s].date1;
-									var link = newLink(dicnode[m],vmNode,dates);
+									vmNode.idFather.push(dicnode[m].idPosition);
+									var dates = vmNode.text+ "的学生: "+study[s].date0+'~'+study[s].date1;
+									if (isfront(dicnode[m],vmNode)){
+										var link = newLink(dicnode[m],vmNode,dates);
+									}
+									else{
+										var link = newLink(vmNode,dicnode[m],dates);
+									}
 									vmNode.removeEventListener('dbclick');
 									break;
 								}
@@ -101,7 +111,7 @@
 							sNode.idFather = new Array();
 							sNode.idFather.push(vmNode.idPosition);
 							sNode.textPosition='Middle_Center';
-							sNode.setLocation(scene.width * Math.random()*t, scene.height * Math.random()*t);
+							sNode.setLocation(scene.width * Math.random(), scene.height * Math.random());
 							scene.add(sNode); 
 							dicnode.push(sNode);
 							var dates = vmNode.text+ "的学生: "+study[s].date0+'~'+study[s].date1;
@@ -110,7 +120,7 @@
 							sNode.addEventListener('dbclick',function(e){
 								if (e.target){
 									addNode(e.target,e.target.idPosition);
-									sNode.removeEventListener('dbclick');
+									this.removeEventListener('dbclick');
 							}
 						});	
 						}
@@ -129,6 +139,25 @@
 				return false;
 			}
 			
+			function isfront(nodea,nodeb){
+				var flagf=0;
+				var flagb=0
+			    for(var p=0 ;p < dicnode.length ;p++){
+					if(dicnode[p]==nodea){
+						flagf = p;
+					}
+					if(dicnode[p]==nodeb){
+						flagb = p;
+					}
+				}
+				if (flagf<flagb){
+					return true;
+				}
+				else{
+					return false;
+				}
+			}
+			
             function newLink(nodeA, nodeZ, text, dashedPattern){
                 var link = new JTopo.Link(nodeA, nodeZ, text); 
                 link.lineWidth = 3; // 线宽
@@ -136,9 +165,7 @@
                 link.bundleOffset = 60; // 折线拐角处的长度
                 link.bundleGap = 20; // 线条之间的间隔
                 link.textOffsetY = 5; // 文本偏移量（向下5个像素）
-				link.arrowsRadius = 10;
                 link.strokeColor = '0,200,255';
-				link.fontColor = '0,0,0';
 				link.text = null;
 				link.alpha = 1;
 				link.mouseover(function(){
@@ -183,7 +210,7 @@
                 node.addEventListener('dbclick',function(e){
 						if (e.target){
 						addNode(e.target,e.target.idPosition);
-						node.removeEventListener('dbclick');
+						this.removeEventListener('dbclick');
 						}
 					});
                 }
@@ -204,7 +231,7 @@
                 node1.addEventListener('dbclick',function(e){
 						if (e.target){
 						addNode(e.target,e.target.idPosition);
-						node1.removeEventListener('dbclick');
+						this.removeEventListener('dbclick');
 						}
 					});
                 }

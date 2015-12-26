@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>{{name.name}}的个人关系图</title>
+<title>个人关系图</title>
 <script src="/static/js/jquery.js"></script>
 <script type="text/javascript" src="/static/js/jtopo-min.js"></script>
 <link href="/static/css/style.css" rel="stylesheet" type="text/css" />
 <script language="JavaScript" src="/static/js/jquery.js"></script>
 <script src="/static/js/cloud.js" type="text/javascript"></script>
-<script id='code'>
+<script id='code' >
         var dicnode = new Array();
 		var dicnode1 = new Array();
         $(document).ready(function(){  
@@ -32,7 +32,7 @@
 								}
 								else{
 									dicnode[n].idFather.push(vmNode.idPosition);
-									vmNode.idFather.push(dicnode[n].idFather.idPosition);
+									vmNode.idFather.push(dicnode[n].idPosition);
 									var datet = vmNode.text+"的老师: "+teach[t].date0+'~'+teach[t].date1;
 									if (isfront(dicnode[n],vmNode)){
 										var link = newLink(dicnode[n],vmNode,datet);
@@ -90,7 +90,7 @@
 								}
 								else{
 									dicnode[m].idFather.push(vmNode.idPosition);
-									vmNode.idFather.push(dicnode[m].idFather.idPosition);
+									vmNode.idFather.push(dicnode[m].idPosition);
 									var dates = vmNode.text+ "的学生: "+study[s].date0+'~'+study[s].date1;
 									if (isfront(dicnode[m],vmNode)){
 										var link = newLink(dicnode[m],vmNode,dates);
@@ -262,6 +262,7 @@
                 }
             JTopo.layout.layoutNode(scene, cloudNode, true);
             
+			
 			document.getElementById("swip").onclick=function(){
 				var tmp=dicnode1.length;
 				while(tmp>0 ){
@@ -273,6 +274,7 @@
 			}
 			
 			
+
             scene.addEventListener('mouseup', function(e){
                 if(e.target && e.target.layout){
                     JTopo.layout.layoutNode(scene, e.target, true);
@@ -291,10 +293,10 @@
       <div id="cloud2" class="cloud"></div>
     </div> 
     <center>  
-	    <h1>{{name.name}}的个人关系图</h1>
+	    <h1>您的个人关系图</h1>
         <canvas width="1000" height="450" id="canvas" style=" background-color:#EEEEEE; border:1px solid #444;"></canvas>  
-		<br><input type="button" id="swip" class="loginbtn" value="拓展一层" /> <input type="button" class="loginbtn" value="只看老师" onclick="location.href='/queryothers/p1{{name.id}}p1'" />
-		<input type="button" class="loginbtn" value="只看学生" onclick="location.href='/queryothers/p1{{name.id}}p2'" /> <input type="button" class="loginbtn" value="返回主页" onclick="location.href='/index/'" /></br>
-    </center>  
+		<br><input type="button" id="swip" class="loginbtn" value="拓展一层" /> <input type="button" class="loginbtn" value="只看老师" onclick="location.href='/query/p1/'" />
+		<input type="button" class="loginbtn" value="只看学生" onclick="location.href='/query/p2/'" /> <input type="button" class="loginbtn" value="返回主页" onclick="location.href='/index/'" /></br>
+    </center>
  </body>  
 </html>

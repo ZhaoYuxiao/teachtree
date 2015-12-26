@@ -20,9 +20,7 @@
 			    var idtemp = idtmp;
 			    $.getJSON("/query2/",{'idtemp':idtemp}, function(ret){
 				    var teach = ret[0];
-					var study = ret[1];
 					var flag1 = 0;
-					var flag2 = 0;
 					for(var t=0; t<teach.length; t++){
 						for(var n=0; n<dicnode.length; n++){
 							if (dicnode[n].idPosition == teach[t].tid){
@@ -80,65 +78,6 @@
 						}
 						JTopo.layout.layoutNode(scene, vmNode, true);
 						flag1 = 0;
-				    }
-					for(var s=0; s<study.length; s++){	
-						for(var m=0; m< dicnode.length; m++){
-							if (dicnode[m].idPosition == study[s].sid){
-							    if (isin(dicnode[m].idPosition , vmNode.idFather)){
-								    vmNode.removeEventListener('dbclick');
-									break;
-								}
-								else{
-									dicnode[m].idFather.push(vmNode.idPosition);
-									vmNode.idFather.push(dicnode[m].idFather.idPosition);
-									var dates = vmNode.text+ "的学生: "+study[s].date0+'~'+study[s].date1;
-									if (isfront(dicnode[m],vmNode)){
-										var link = newLink(dicnode[m],vmNode,dates);
-									}
-									else{
-										var link = newLink(vmNode,dicnode[m],dates);
-									}
-									vmNode.removeEventListener('dbclick');
-									break;
-								}
-							}
-							else{
-								flag2 = 1;
-							}
-							if(m<dicnode.length-1){
-								flag2 = 0;
-							}
-						}
-						if (flag2 == 1){
-							var sNode = new JTopo.CircleNode(study[s].name);
-							sNode.radius = 20;
-							sNode.fillStyle = '255,255,0';
-							sNode.layout = {type: 'circle', radius: 50};
-							sNode.idPosition = study[s].sid;
-							sNode.idFather = new Array();
-							sNode.idFather.push(vmNode.idPosition);
-							sNode.textPosition='Middle_Center';
-							sNode.setLocation(scene.width * Math.random(), scene.height * Math.random());
-							scene.add(sNode); 
-							dicnode.push(sNode);
-							dicnode1.push(sNode);
-							var dates = vmNode.text+ "的学生: "+study[s].date0+'~'+study[s].date1;
-							var link = newLink(vmNode,sNode,dates);
-							JTopo.layout.layoutNode(scene, vmNode, true);
-							sNode.addEventListener('dbclick',function(e){
-								if (e.target){
-									addNode(e.target,e.target.idPosition);
-									this.removeEventListener('dbclick');
-									for (var a=0;a<dicnode1.length;a++){
-										if (dicnode1[a] == e.target){
-											dicnode1.splice(a,1);
-										}
-									}
-							}
-						});	
-						}
-						JTopo.layout.layoutNode(scene, vmNode, true);
-						flag2 = 0;
 				    }
 				});
             };  
@@ -233,33 +172,6 @@
 						}
 					});
                 }
-			for(var j=0; j<students.length; j++){
-                var node1 = new JTopo.CircleNode(students[j].name);
-                node1.fillStyle = '200,255,0';
-                node1.radius = 20;
-				node1.textPosition='Middle_Center';
-				node1.idPosition = students[j].sid;
-				node1.idFather = new Array();
-				node1.idFather.push(cloudNode.idPosition);
-                node1.setLocation(scene.width * Math.random(), scene.height * Math.random());
-                node1.layout = {type: 'circle', radius: 80};
-                scene.add(node1);
-				dicnode.push(node1);
-				dicnode1.push(node1);
-                var date1 = cloudNode.text+"的学生: "+students[j].date0+'~'+students[j].date1;		
-                var link1 = newLink(cloudNode, node1, date1);
-                node1.addEventListener('dbclick',function(e){
-						if (e.target){
-						addNode(e.target,e.target.idPosition);
-						this.removeEventListener('dbclick');
-						for (var a=0;a<dicnode1.length;a++){
-										if (dicnode1[a] == e.target){
-											dicnode1.splice(a,1);
-										}
-									}
-						}
-					});
-                }
             JTopo.layout.layoutNode(scene, cloudNode, true);
             
 			document.getElementById("swip").onclick=function(){
@@ -291,10 +203,9 @@
       <div id="cloud2" class="cloud"></div>
     </div> 
     <center>  
-	    <h1>{{name.name}}的个人关系图</h1>
+	    <h1>{{name.name}}的老师关系图</h1>
         <canvas width="1000" height="450" id="canvas" style=" background-color:#EEEEEE; border:1px solid #444;"></canvas>  
-		<br><input type="button" id="swip" class="loginbtn" value="拓展一层" /> <input type="button" class="loginbtn" value="只看老师" onclick="location.href='/queryothers/p1{{name.id}}p1'" />
-		<input type="button" class="loginbtn" value="只看学生" onclick="location.href='/queryothers/p1{{name.id}}p2'" /> <input type="button" class="loginbtn" value="返回主页" onclick="location.href='/index/'" /></br>
+		<br><input type="button" class="loginbtn" value="返回主页" onclick="location.href='/index/'" /> <input type="button" id="swip" class="loginbtn" value="拓展一层" /></br>
     </center>  
  </body>  
 </html>
