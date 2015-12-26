@@ -1,0 +1,16 @@
+<div id="main" align="center">
+<h1><font color=blue>你即将与{{student.name}}建立师生关系，请输入师生关系维持时间</font></h1>
+
+<form method="POST">
+{% csrf_token %}
+<table border=1 align="center">
+ <tr>
+<th>师生关系起点</th><th>师生关系终点</th><th>操作按钮</th>
+ </tr>
+ <tr>
+  <td><input name="date0" type="text"></td>
+  <td><input name="date1" type="text"></td>
+  <td><input type="submit" value="保存" > <input type="reset" value="重填"></td>
+ </tr>
+</table>
+</form>

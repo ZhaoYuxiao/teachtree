@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>登陆</title>
+</head>
+
+<body>
+<h1>登陆页面：</h1>
+{% if errors %}
+<ul>
+{% for error in errors %}
+<li style="color: red;">{{ error }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+<form method = 'post' enctype="multipart/form-data">
+    {% csrf_token %}
+	<table>
+    {% for field in uf %}
+        <tr>
+            <td>{{ field.label_tag }}</td>
+            <td>{{ field }}</td>
+        </tr>
+    {% endfor %}
+	</table>
+    <input type="submit" value = "ok" />
+</form>
+<br>
+<a href="/regist/">注册</a>
+</body>
+</html>

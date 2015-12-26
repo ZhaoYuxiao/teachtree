@@ -1,16 +1,29 @@
+#-*- coding:utf-8 -*-
 from django.db import models
 
-# Create your models here.
-
 class Person(models.Model):
-    Teacher = models.ManyToManyField('self',symmetrical=False,related_name='t+')
-    Name = models.CharField(max_length=100)
-    Date = models.ManyToManyField('Time')
-    Student = models.ManyToManyField('self',symmetrical=False,related_name='s+')
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    sex = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+    school = models.CharField(max_length=100)
+    email = models.EmailField()
+    province = models.CharField(max_length=100)
+    identity_card = models.CharField(max_length=18)
     def __unicode__(self):
-        return self.Name
-class Time(models.Model):
-    Tors= models.ForeignKey(Person)
-    Day = models.CharField(max_length=100)
-    def __unicode__(self):
-        return self.Day
+        return self.name
+
+
+class Teacher(models.Model):
+    pid = models.ForeignKey(Person)
+    tid = models.IntegerField()
+    date0 = models.DateField()
+    date1 = models.DateField()
+ 
+        
+class Student(models.Model):
+    pid = models.ForeignKey(Person)
+    sid = models.IntegerField()
+    date0 = models.DateField()
+    date1 = models.DateField()
+ 

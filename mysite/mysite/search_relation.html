@@ -1,0 +1,27 @@
+<div id="main" align="center">
+<h1><font color=blue>请输入老师姓名！！！</font></h1>
+{% if errors %}
+<ul>
+{% for error in errors %}
+<li style="color: red;">{{ error }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+</div>
+<form  method="POST">
+{% csrf_token %}
+<table border=1 align="center">
+ <tr>
+  <th>老师姓名</th><th>师生关系起点</th><th>师生关系终点</th><th>操作按钮</th>
+ </tr>
+ <tr>
+  <td><input name="name" type="text"></td>
+  <td><input name="date0" type="text"></td>
+  <td><input name="date1" type="text"></td>
+  <td><input type="submit" value="保存" > <input type="reset" value="重填"></td>
+ </tr>
+</table>
+</form>
+<div>
+ <a href="/person/">返回主页</a>
+</div>

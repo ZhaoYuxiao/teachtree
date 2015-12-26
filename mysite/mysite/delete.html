@@ -1,9 +1,53 @@
-﻿<title>删除结果</title>
-<body>
-<div id="main" align="center">
-<h1><font color=red>删除成功！！</font></h1>
-</div>
-<div align="center">
-<a href="/">返回主页</a>
-</div>
-</body>
+<html>
+<head>
+<title>欢迎使用师承信息管理系统</title>
+</head>
+
+<center>
+{% if tea %}
+<p>请选择一个老师,删除师生关系</p>
+<table border="1">
+<tr>
+<th>姓名</th><th>年龄</th><th>性别</th><th>国籍</th><th>毕业院校</th><th>邮箱</th><th>op</th> 
+</tr>
+{% for teacher in tea %}
+<tr>
+<td>{{ teacher.name }}</td>
+<td>{{ teacher.age }}</td>
+<td>{{ teacher.sex }}</td>
+<td>{{ teacher.coutry }}</td>
+<td>{{ teacher.school }}</td>
+<td>{{ teacher.email }}</td>
+<td><a href="/deleteteacher/p1{{teacher.id}}/">删除关系</a></td>
+
+
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+</center>
+
+<center>
+{% if stu %}
+<p>请选择一个学生,删除师生关系</p>
+<table border="1">
+<tr>
+<th>姓名</th><th>年龄</th><th>性别</th><th>国籍</th><th>毕业院校</th><th>邮箱</th><th>op</th> 
+</tr>
+{% for teacher in stu %}
+<tr>
+<td>{{ teacher.name }}</td>
+<td>{{ teacher.age }}</td>
+<td>{{ teacher.sex }}</td>
+<td>{{ teacher.coutry }}</td>
+<td>{{ teacher.school }}</td>
+<td>{{ teacher.email }}</td>
+<td><a href="/deletestudent/p1{{teacher.id}}/">删除关系</a></td>
+
+
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+</center>
+</html>

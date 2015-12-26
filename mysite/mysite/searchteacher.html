@@ -1,0 +1,46 @@
+<div id="main" align="center">
+<h1><font color=blue>请输入老师姓名！！！</font></h1>
+</div>
+<form  method="POST">
+{% csrf_token %}
+<table border=1 align="center">
+ <tr>
+  <th>老师姓名</th><th>操作按钮</th>
+ </tr>
+ <tr>
+  <td><input name="name" type="text"></td>
+  <td><input type="submit" value="搜索" > <input type="reset" value="重填"></td>
+ </tr>
+</table>
+</form>
+<center>
+{% if search %}
+{% if teachers %}
+<p>请选择一个老师建立师生关系，如果没有你要找的老师，请重新搜索</p>
+<table border="1">
+<tr>
+<th>姓名</th><th>年龄</th><th>性别</th><th>毕业院校</th><th>邮箱</th><th>op</th> 
+</tr>
+{% for teacher in teachers %}
+<tr>
+<td>{{ teacher.name }}</td>
+<td>{{ teacher.age }}</td>
+<td>{{ teacher.sex }}</td>
+<td>{{ teacher.school }}</td>
+<td>{{ teacher.email }}</td>
+<td><a href="/buildteacher/p1{{teacher.id}}/">建立关系</a></td>
+
+
+</tr>
+{% endfor %}
+</table>
+
+
+{% else %}
+<p>数据库中没有此人，请重新搜索</p>
+{% endif %}
+{% endif %}
+</center>
+<div>
+ <a href="/index/">返回主页</a>
+</div>
